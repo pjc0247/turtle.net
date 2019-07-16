@@ -38,6 +38,7 @@ namespace Turtle
         private List<VConstructorInfo> ctors = new List<VConstructorInfo>();
         private List<VMethodInfo> methods = new List<VMethodInfo>();
         private List<VFieldInfo> fields = new List<VFieldInfo>();
+        private List<VPropertyInfo> properties = new List<VPropertyInfo>();
 
         public VType(VM vm, TypeDefinition type)
         {
@@ -58,6 +59,8 @@ namespace Turtle
             }
             foreach (var field in type.Fields)
                 AddField(field);
+            foreach (var property in type.Properties)
+                AddProperty(property);
         }
 
         public VConstructorInfo AddCtor(MethodDefinition method)
@@ -77,6 +80,12 @@ namespace Turtle
             var vField = new VFieldInfo(vm, field, fields.Count);
             fields.Add(vField);
             return vField;
+        }
+        public VPropertyInfo AddProperty(PropertyDefinition property)
+        {
+            var vProperty = new VPropertyInfo(vm, property);
+            properties.Add(vProperty);
+            return vProperty;
         }
 
         public override ConstructorInfo[] GetConstructors(BindingFlags bindingAttr)

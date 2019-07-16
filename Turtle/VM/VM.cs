@@ -228,6 +228,12 @@ namespace Turtle
             Push(obj);
             return obj;
         }
+        internal void Newobj(MethodReference ctor)
+        {
+            var type = typeResolver.Resolve(ctor.DeclaringType);
+            var args = GetStack(ctor.Parameters.Count);
+            VActivator.CreateInstance(this, type, args);
+        }
         private void RunNewobj(Instruction op)
         {
             var ctor = (MethodReference)op.Operand;

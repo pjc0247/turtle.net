@@ -15,12 +15,21 @@ namespace test
     }
     class Bar : Foo
     {
+        [Test]
         public static int bb = 1234;
 
         public int a = 1;
         public override void Hello()
         {
             Console.WriteLine("HelloBar");
+        }
+    }
+
+    class TestAttribute : Attribute
+    {
+        public TestAttribute()
+        {
+            Console.Write("TESTSTSTST");
         }
     }
 

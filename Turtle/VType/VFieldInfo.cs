@@ -21,7 +21,8 @@ namespace Turtle
         public override Type DeclaringType => _DeclaringType;
         private Type _DeclaringType;
 
-        public override System.Reflection.FieldAttributes Attributes => throw new NotImplementedException();
+        public override System.Reflection.FieldAttributes Attributes => _Attributes;
+        private System.Reflection.FieldAttributes _Attributes;
 
         public override string Name => _Name;
         private string _Name;
@@ -41,13 +42,29 @@ namespace Turtle
             _Name = field.Name;
             _DeclaringType = vm.typeResolver.Resolve(field.DeclaringType);
             _FieldType = vm.typeResolver.Resolve(field.FieldType);
+
+            foreach (var attr in field.CustomAttributes)
+            {
+                var args = attr.ConstructorArguments.Select(x => x.Value).ToArray();
+                vm.Newobj(attr.Constructor);
+                vm.Run(attr.Constructor.Resolve(), args);
+            }
+
+            BuildAttributes();
+        }
+
+        private void BuildAttributes()
+        {
+            if (field.IsStatic) _Attributes |= System.Reflection.FieldAttributes.Static;
+
+            if (field.IsPublic) _Attributes |= System.Reflection.FieldAttributes.Public;
+            else _Attributes |= System.Reflection.FieldAttributes.Private;
         }
 
         public override object[] GetCustomAttributes(bool inherit)
         {
             throw new NotImplementedException();
         }
-
         public override object[] GetCustomAttributes(Type attributeType, bool inherit)
         {
             throw new NotImplementedException();
