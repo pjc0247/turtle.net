@@ -1,0 +1,70 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Reflection;
+using System.Globalization;
+
+using Mono.Cecil;
+using Mono.Cecil.Cil;
+
+namespace Turtle
+{
+    public class VConstructorInfo : ConstructorInfo
+    {
+        public override RuntimeMethodHandle MethodHandle => throw new NotImplementedException();
+
+        public override System.Reflection.MethodAttributes Attributes => throw new NotImplementedException();
+
+        public override string Name => throw new NotImplementedException();
+
+        public override Type DeclaringType => throw new NotImplementedException();
+
+        public override Type ReflectedType => throw new NotImplementedException();
+
+        private VM vm;
+        private MethodDefinition method;
+
+        public VConstructorInfo(VM vm, MethodDefinition method)
+        {
+            this.vm = vm;
+            this.method = method;
+        }
+
+        public override object[] GetCustomAttributes(bool inherit)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override object[] GetCustomAttributes(Type attributeType, bool inherit)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override System.Reflection.MethodImplAttributes GetMethodImplementationFlags()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ParameterInfo[] GetParameters()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override object Invoke(BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture)
+        {
+            return vm.Run(method, parameters);
+        }
+
+        public override object Invoke(object obj, BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture)
+        {
+            return vm.Run(method, parameters);
+        }
+
+        public override bool IsDefined(Type attributeType, bool inherit)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
