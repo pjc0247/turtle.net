@@ -15,6 +15,8 @@ namespace test
     }
     class Bar : Foo
     {
+        public static int bb = 1234;
+
         public int a = 1;
         public override void Hello()
         {
@@ -26,6 +28,8 @@ namespace test
     {
         static void Main(string[] args)
         {
+            Console.Write(Bar.bb);
+
             var c = new Bar();
             c.a += 12354;
             var a = 1;

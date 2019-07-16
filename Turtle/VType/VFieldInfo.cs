@@ -57,6 +57,8 @@ namespace Turtle
         {
             if (obj is VObject vobj)
                 return vobj.fields[ptr];
+            else if (IsStatic)
+                return null;
             else
                 throw new ArgumentException(nameof(obj));
         }
@@ -64,6 +66,8 @@ namespace Turtle
         {
             if (obj is VObject vobj)
                 vobj.fields[ptr] = value;
+            else if (IsStatic)
+                ;
             else
                 throw new ArgumentException(nameof(obj));
         }

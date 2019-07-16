@@ -121,6 +121,8 @@ namespace Turtle
 
                 case Code.Ldfld: RunLdfld(op); break;
                 case Code.Stfld: RunStfld(op); break;
+                case Code.Ldsfld: RunLdsfld(op); break;
+                case Code.Stsfld: RunStsfld(op); break;
                 case Code.Ldelem_I4: RunLdelem(op); break;
                 case Code.Stelem_I4: RunStelem(op); break;
 
@@ -203,6 +205,21 @@ namespace Turtle
             var field = obj.type.GetField(fieldRef.Name);
             field.SetValue(obj, s1);
             Pop(2);
+        }
+        private void RunLdsfld(Instruction op)
+        {
+            var fieldRef = (FieldReference)op.Operand;
+            var field = typeResolver.Resolve(fieldRef.DeclaringType)
+                .GetField(fieldRef.Name);
+            Push(field.GetValue(null));
+        }
+        private void RunStsfld(Instruction op)
+        {
+            var fieldRef = (FieldReference)op.Operand;
+            var field = typeResolver.Resolve(fieldRef.DeclaringType)
+                .GetField(fieldRef.Name);
+            field.SetValue(null, s1);
+            Pop();
         }
 
         internal VObject Allocobj(VType type)
