@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 
 namespace Turtle
 {
@@ -12,5 +13,6 @@ namespace Turtle
         public MethodDefinition method;
         public object[] locals;
         public int bp;
+        public Instruction cur;
     }
 }

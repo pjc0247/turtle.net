@@ -44,7 +44,20 @@ namespace Turtle
                 ?? throw new InvalidOperationException();
         }
 
-        public static object G(object a, object b)
+        public static object Neg(object a)
+        {
+            if (a.GetType().IsPrimitive)
+            {
+                if (a is double) return -(double)a;
+                if (a is float) return -(float)a;
+                if (a is Int64) return -(Int64)a;
+                if (a is Int32) return -(Int32)a;
+            }
+
+            throw new InvalidOperationException();
+        }
+
+        public static bool G(object a, object b)
         {
             if (a.GetType().IsPrimitive)
             {
@@ -55,10 +68,11 @@ namespace Turtle
             }
 
             var method = GetGreaterMethod(a);
-            return method?.Invoke(null, new object[] { a, b })
-                ?? throw new InvalidOperationException();
+            if (method != null)
+                return (bool)method.Invoke(null, new object[] { a, b });
+            throw new InvalidOperationException();
         }
-        public static object GE(object a, object b)
+        public static bool GE(object a, object b)
         {
             if (a.GetType().IsPrimitive)
             {
@@ -69,10 +83,11 @@ namespace Turtle
             }
 
             var method = GetGreaterEqualMethod(a);
-            return method?.Invoke(null, new object[] { a, b })
-                ?? throw new InvalidOperationException();
+            if (method != null)
+                return (bool)method.Invoke(null, new object[] { a, b });
+            throw new InvalidOperationException();
         }
-        public static object L(object a, object b)
+        public static bool L(object a, object b)
         {
             if (a.GetType().IsPrimitive)
             {
@@ -83,10 +98,11 @@ namespace Turtle
             }
 
             var method = GetLessMethod(a);
-            return method?.Invoke(null, new object[] { a, b })
-                ?? throw new InvalidOperationException();
+            if (method != null)
+                return (bool)method.Invoke(null, new object[] { a, b });
+            throw new InvalidOperationException();
         }
-        public static object LE(object a, object b)
+        public static bool LE(object a, object b)
         {
             if (a.GetType().IsPrimitive)
             {
@@ -97,8 +113,18 @@ namespace Turtle
             }
 
             var method = GetLessEqualMethod(a);
-            return method?.Invoke(null, new object[] { a, b })
-                ?? throw new InvalidOperationException();
+            if (method != null)
+                return (bool)method.Invoke(null, new object[] { a, b });
+            throw new InvalidOperationException();
+        }
+        public static bool Eq(object a, object b)
+        {
+            if (a.GetType().IsValueType)
+                return a.Equals(b);
+            if (a is string)
+                return a.Equals(b);
+
+            return a == b;
         }
 
         private static (object, object) Promote(object a, object b)
@@ -123,6 +149,8 @@ namespace Turtle
         private static MethodInfo GetSubMethod(object left)
             => left.GetType().GetMethod("op_Subtraction");
 
+        private static MethodInfo GetEqMethod(object left)
+            => left.GetType().GetMethod("op_Equality");
         private static MethodInfo GetGreaterMethod(object left)
             => left.GetType().GetMethod("op_GreaterThan");
         private static MethodInfo GetLessMethod(object left)

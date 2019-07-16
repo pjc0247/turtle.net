@@ -104,11 +104,20 @@ namespace Turtle
                 case Code.Ldc_I4_7: Push(7); break;
                 case Code.Ldc_I4_8: Push(8); break;
                 case Code.Ldc_I4_M1: Push(-1); break;
-                case Code.Ldc_I4: Push(op.Operand); break;
-                case Code.Ldc_I4_S: Push(op.Operand); break;
+                case Code.Ldc_I4: 
+                case Code.Ldc_I4_S:
+                case Code.Ldc_R4:
+                case Code.Ldc_R8:
+                case Code.Ldc_I8: Push(op.Operand); break;
 
                 case Code.Ldloc_0: Push(locals[0]); break;
+                case Code.Ldloc_1: Push(locals[1]); break;
+                case Code.Ldloc_2: Push(locals[2]); break;
+                case Code.Ldloc_3: Push(locals[3]); break;
                 case Code.Stloc_0: locals[0] = s1; Pop(); break;
+                case Code.Stloc_1: locals[1] = s1; Pop(); break;
+                case Code.Stloc_2: locals[2] = s1; Pop(); break;
+                case Code.Stloc_3: locals[3] = s1; Pop(); break;
 
                 case Code.Ldelem_I4: RunLdelem(op); break;
                 case Code.Stelem_I4: RunStelem(op); break;
@@ -119,19 +128,23 @@ namespace Turtle
                 case Code.Dup: Push(s1); break;
                 case Code.Add: RunAdd(op); break;
                 case Code.Sub: RunSub(op); break;
+                case Code.Neg: RunNeg(op); break;
 
                 case Code.Cgt: RunCgt(op); break;
                 case Code.Clt: RunClt(op); break;
+                case Code.Ceq: RunCeq(op); break;
 
                 case Code.Brfalse: RunBrfalse(op); break;
                 case Code.Brfalse_S: RunBrfalse(op); break;
                 case Code.Brtrue: RunBrtrue(op); break;
                 case Code.Brtrue_S: RunBrtrue(op); break;
 
+                case Code.Castclass: RunCastclass(op); break;
                 case Code.Box: RunBox(op); break;
                 case Code.Unbox: RunUnbox(op); break;
 
                 case Code.Call: RunCall(op); break;
+                case Code.Callvirt: RunCallvirt(op); break;
                 case Code.Ret: RunRet(op); break;
             }
         }
@@ -206,6 +219,10 @@ namespace Turtle
             s2 = MadMath.Sub(s2, s1);
             sp--;
         }
+        private void RunNeg(Instruction op)
+        {
+            s1 = MadMath.Neg(s1);
+        }
 
         private void RunCgt(Instruction op)
         {
@@ -215,6 +232,11 @@ namespace Turtle
         private void RunClt(Instruction op)
         {
             s2 = MadMath.L(s2, s1);
+            sp--;
+        }
+        private void RunCeq(Instruction op)
+        {
+            s2 = MadMath.Eq(s2, s1);
             sp--;
         }
 
@@ -241,6 +263,12 @@ namespace Turtle
             }
         }
 
+        private void RunCastclass(Instruction op)
+        {
+            var typeRef = (TypeReference)op.Operand;
+            var type = typeResolver.Resolve(typeRef);
+            s1 = Convert.ChangeType(s1, type);
+        }
         private void RunBox(Instruction op)
         {
              s1 = (object)s1;
@@ -282,6 +310,11 @@ namespace Turtle
                 Pop(args.Length + 1);
             }
         }
+        private void RunCallvirt(Instruction op)
+        {
+            RunCall(op);
+        }
+
         private void RunRet(Instruction op)
         {
             if (method.ReturnType.FullName != typeof(void).FullName)
@@ -290,7 +323,7 @@ namespace Turtle
                 Pop();
             }
 
-            callstack.Pop();
+            PopMethod();
         }
 
         private object[] GetStack(int n)
@@ -307,7 +340,8 @@ namespace Turtle
             {
                 method = method,
                 locals = new object[method.Body.Variables.Count],
-                bp = bp
+                bp = bp,
+                cur = cur
             });
 
             bp = sp - (method.Parameters.Count +
@@ -318,6 +352,7 @@ namespace Turtle
         {
             var callframe = callstack.Pop();
             bp = callframe.bp;
+            cur = callframe.cur;
         }
     }
 }

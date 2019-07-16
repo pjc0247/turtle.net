@@ -10,9 +10,18 @@ namespace Turtle
     {
         public object[] fields;
 
+        private VType type;
+
         public VObject(VType type)
         {
+            this.type = type;
+
             fields = new object[type.GetFields().Length];
+        }
+
+        public override string ToString()
+        {
+            return type.FullName;
         }
     }
 }

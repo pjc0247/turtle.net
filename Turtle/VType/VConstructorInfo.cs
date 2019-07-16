@@ -25,11 +25,16 @@ namespace Turtle
 
         private VM vm;
         private MethodDefinition method;
+        private VParameterInfo[] parameters;
 
         public VConstructorInfo(VM vm, MethodDefinition method)
         {
             this.vm = vm;
             this.method = method;
+
+            parameters = new VParameterInfo[method.Parameters.Count];
+            for (int i = 0; i < method.Parameters.Count; i++)
+                parameters[i] = new VParameterInfo(vm, method.Parameters[i]);
         }
 
         public override object[] GetCustomAttributes(bool inherit)
@@ -48,9 +53,7 @@ namespace Turtle
         }
 
         public override ParameterInfo[] GetParameters()
-        {
-            throw new NotImplementedException();
-        }
+            => parameters.ToArray();
 
         public override object Invoke(BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture)
         {

@@ -6,13 +6,30 @@ using System.Threading.Tasks;
 
 namespace test
 {
+    class Foo
+    {
+        public virtual void Hello()
+        {
+            Console.WriteLine("HelloFoo");
+        }
+    }
+    class Bar : Foo
+    {
+        public override void Hello()
+        {
+            Console.WriteLine("HelloBar");
+        }
+    }
+
     class Program
     {
         static void Main(string[] args)
         {
-            if (args[0].Length >= args[1].Length)
+            var a = new Bar();
+            var b = (Foo)a;
 
-            Foo();
+            Console.WriteLine(a);
+            a.Hello();
         }
 
         static void Foo()

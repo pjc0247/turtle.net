@@ -47,8 +47,10 @@ namespace Turtle
             _fullName = type.FullName;
             _name = type.Name;
 
+            Console.WriteLine(type.FullName);
             foreach (var method in type.Methods)
             {
+                Console.WriteLine("  " + method.FullName);
                 if (method.IsConstructor)
                     AddCtor(method);
                 else
