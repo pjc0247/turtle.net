@@ -15,6 +15,7 @@ namespace test
     }
     class Bar : Foo
     {
+        public int a = 1;
         public override void Hello()
         {
             Console.WriteLine("HelloBar");
@@ -25,11 +26,18 @@ namespace test
     {
         static void Main(string[] args)
         {
-            var a = new Bar();
-            var b = (Foo)a;
+            var c = new Bar();
+            c.a += 12354;
+            var a = 1;
 
-            Console.WriteLine(a);
-            a.Hello();
+            switch(a)
+            {
+                case 1:
+                    Console.Write(1234);
+                    break;
+                case 2:
+                    break;
+            }
         }
 
         static void Foo()

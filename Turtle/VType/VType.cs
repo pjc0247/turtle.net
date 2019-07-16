@@ -111,9 +111,8 @@ namespace Turtle
 
         public override FieldInfo GetField(string name, BindingFlags bindingAttr)
         {
-            throw new NotImplementedException();
+            return fields.Where(x => x.Name == name).FirstOrDefault();
         }
-
         public override FieldInfo[] GetFields(BindingFlags bindingAttr)
         {
             return fields.ToArray();

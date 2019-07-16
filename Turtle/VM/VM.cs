@@ -119,6 +119,8 @@ namespace Turtle
                 case Code.Stloc_2: locals[2] = s1; Pop(); break;
                 case Code.Stloc_3: locals[3] = s1; Pop(); break;
 
+                case Code.Ldfld: RunLdfld(op); break;
+                case Code.Stfld: RunStfld(op); break;
                 case Code.Ldelem_I4: RunLdelem(op); break;
                 case Code.Stelem_I4: RunStelem(op); break;
 
@@ -134,6 +136,8 @@ namespace Turtle
                 case Code.Clt: RunClt(op); break;
                 case Code.Ceq: RunCeq(op); break;
 
+                case Code.Br_S:
+                case Code.Br: cur = (Instruction)op.Operand; break;
                 case Code.Brfalse: RunBrfalse(op); break;
                 case Code.Brfalse_S: RunBrfalse(op); break;
                 case Code.Brtrue: RunBrtrue(op); break;
@@ -145,6 +149,9 @@ namespace Turtle
 
                 case Code.Call: RunCall(op); break;
                 case Code.Callvirt: RunCallvirt(op); break;
+
+                case Code.Switch: RunSwitch(op); break;
+                case Code.Throw: RunThrow(op); break;
                 case Code.Ret: RunRet(op); break;
             }
         }
@@ -181,6 +188,21 @@ namespace Turtle
             var array = (Array)s3;
             var index = (int)s2;
             array.SetValue(Pop(), index);
+        }
+        private void RunLdfld(Instruction op)
+        {
+            var obj = (VObject)s2;
+            var fieldRef  = (FieldReference)op.Operand;
+            var field = obj.type.GetField(fieldRef.Name);
+            s1 = field.GetValue(obj);
+        }
+        private void RunStfld(Instruction op)
+        {
+            var obj = (VObject)s2;
+            var fieldRef = (FieldReference)op.Operand;
+            var field = obj.type.GetField(fieldRef.Name);
+            field.SetValue(obj, s1);
+            Pop(2);
         }
 
         internal VObject Allocobj(VType type)
@@ -315,6 +337,14 @@ namespace Turtle
             RunCall(op);
         }
 
+        private void RunSwitch(Instruction op)
+        {
+            ;
+        }
+        private void RunThrow(Instruction op)
+        {
+            throw (Exception)Pop();
+        }
         private void RunRet(Instruction op)
         {
             if (method.ReturnType.FullName != typeof(void).FullName)

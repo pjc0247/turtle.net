@@ -8,9 +8,8 @@ namespace Turtle
 {
     public struct VObject
     {
+        public VType type;
         public object[] fields;
-
-        private VType type;
 
         public VObject(VType type)
         {
