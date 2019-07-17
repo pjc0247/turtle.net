@@ -73,6 +73,9 @@ namespace Turtle
 
         public object Run(MethodDefinition method, object _this, object[] args)
         {
+            if (_this == null)
+                throw new NullReferenceException();
+
             Push(_this);
             if (_this is VObject vo)
                 genericBounds = vo.genericArgs;

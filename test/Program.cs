@@ -50,29 +50,10 @@ namespace test
     {
         static void Main(string[] args)
         {
-            G<int>.Hello();
-            new G<float>();
+            Foo a = null;
+            a.Hello();
+
             return;
-
-            var c = new Bar();
-
-            Console.Write(c.bb);
-
-            c.bb = 12314;
-            Console.Write(c.bb);
-
-            
-            c.a += 12354;
-            var a = 1;
-
-            switch(a)
-            {
-                case 1:
-                    Console.Write(1234);
-                    break;
-                case 2:
-                    break;
-            }
         }
 
         static void Foo()
