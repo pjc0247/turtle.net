@@ -35,6 +35,7 @@ namespace Turtle
         private VM vm;
         private TypeDefinition type;
 
+        private VConstructorInfo cctor;
         private List<VConstructorInfo> ctors = new List<VConstructorInfo>();
         private List<VMethodInfo> methods = new List<VMethodInfo>();
         private List<VFieldInfo> fields = new List<VFieldInfo>();
@@ -67,6 +68,10 @@ namespace Turtle
         {
             var vMethod = new VConstructorInfo(vm, method);
             ctors.Add(vMethod);
+
+            if (method.IsStatic)
+                cctor = vMethod;
+
             return vMethod;
         }
         public VMethodInfo AddMethod(MethodDefinition method)
@@ -86,6 +91,22 @@ namespace Turtle
             var vProperty = new VPropertyInfo(vm, property);
             properties.Add(vProperty);
             return vProperty;
+        }
+
+        public void Initialize()
+        {
+            foreach (var field in fields)
+            {
+                if (field.IsStatic) {
+                    object v = null;
+                    if (field.FieldType.IsValueType)
+                        v = Activator.CreateInstance(field.FieldType);
+                    field.SetValue(null, v);
+                }
+            }
+
+            if (cctor != null)
+                cctor.Invoke(new object[] { });
         }
 
         public override ConstructorInfo[] GetConstructors(BindingFlags bindingAttr)
@@ -191,37 +212,16 @@ namespace Turtle
 
         protected override PropertyInfo GetPropertyImpl(string name, BindingFlags bindingAttr, Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers)
         {
-            throw new NotImplementedException();
+            return properties
+                .Where(x => x.Name == name)
+                .FirstOrDefault();
         }
 
-        protected override bool HasElementTypeImpl()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override bool IsArrayImpl()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override bool IsByRefImpl()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override bool IsCOMObjectImpl()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override bool IsPointerImpl()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override bool IsPrimitiveImpl()
-        {
-            throw new NotImplementedException();
-        }
+        protected override bool HasElementTypeImpl() => false;
+        protected override bool IsArrayImpl() => false;
+        protected override bool IsByRefImpl() => false;
+        protected override bool IsCOMObjectImpl() => false;
+        protected override bool IsPointerImpl() => false;
+        protected override bool IsPrimitiveImpl() => false;
     }
 }

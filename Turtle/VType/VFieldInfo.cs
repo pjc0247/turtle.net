@@ -27,13 +27,15 @@ namespace Turtle
         public override string Name => _Name;
         private string _Name;
 
+        public object InitialValue => field.InitialValue;
+
         public override Type ReflectedType => throw new NotImplementedException();
 
         private VM vm;
         private FieldDefinition field;
-        private int ptr;
+        private long ptr;
 
-        public VFieldInfo (VM vm, FieldDefinition field, int ptr)
+        public VFieldInfo (VM vm, FieldDefinition field, long ptr)
         {
             this.vm = vm;
             this.field = field;
@@ -43,14 +45,20 @@ namespace Turtle
             _DeclaringType = vm.typeResolver.Resolve(field.DeclaringType);
             _FieldType = vm.typeResolver.Resolve(field.FieldType);
 
+            BuildAttributes();
+
+            if (IsStatic)
+                this.ptr = vm.storage.GetNextKey();
+        }
+
+        public void InitializeCustomAttributes()
+        {
             foreach (var attr in field.CustomAttributes)
             {
                 var args = attr.ConstructorArguments.Select(x => x.Value).ToArray();
                 vm.Newobj(attr.Constructor);
                 vm.Run(attr.Constructor.Resolve(), args);
             }
-
-            BuildAttributes();
         }
 
         private void BuildAttributes()
@@ -75,7 +83,7 @@ namespace Turtle
             if (obj is VObject vobj)
                 return vobj.fields[ptr];
             else if (IsStatic)
-                return null;
+                return vm.storage.Get(ptr);
             else
                 throw new ArgumentException(nameof(obj));
         }
@@ -84,7 +92,7 @@ namespace Turtle
             if (obj is VObject vobj)
                 vobj.fields[ptr] = value;
             else if (IsStatic)
-                ;
+                vm.storage.Set(ptr, value);
             else
                 throw new ArgumentException(nameof(obj));
         }

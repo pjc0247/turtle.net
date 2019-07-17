@@ -23,7 +23,7 @@ namespace Turtle
             var main = test.Assembly.EntryPoint.Body.Instructions;
 
             vm.Build(test);
-            vm.Run(test.Assembly.EntryPoint, new object[] { "ASDF " });
+            vm.Run(test.Assembly.EntryPoint, new object[] { });
             /*
             vm.Run(new Instruction[]
             {

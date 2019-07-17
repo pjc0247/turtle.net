@@ -16,7 +16,7 @@ namespace test
     class Bar : Foo
     {
         [Test]
-        public static int bb = 1234;
+        public int bb { get; set; } = 1;
 
         public int a = 1;
         public override void Hello()
@@ -35,11 +35,34 @@ namespace test
 
     class Program
     {
+        int A() => 1;
+
         static void Main(string[] args)
         {
-            Console.Write(Bar.bb);
+            var cc = new Program();
+            Console.WriteLine(cc.A());
+            Console.WriteLine(cc.A());
+            Console.WriteLine(cc.A());
+            Console.WriteLine(cc.A());
+            Console.WriteLine(cc.A());
+            Console.WriteLine(cc.A());
+
+            return;
 
             var c = new Bar();
+
+            Console.Write(c.bb);
+            Console.Write(c.bb);
+            Console.Write(c.bb);
+            Console.Write(c.bb);
+            Console.Write(c.bb);
+            Console.Write(c.bb);
+            Console.Write(c.bb);
+
+            c.bb = 12314;
+            Console.Write(c.bb);
+
+            
             c.a += 12354;
             var a = 1;
 
@@ -58,11 +81,6 @@ namespace test
             object o = new Program();
 
             Console.WriteLine(o);
-        }
-
-        public Program()
-        {
-            Console.WriteLine(1 >= 4);
         }
     }
 }

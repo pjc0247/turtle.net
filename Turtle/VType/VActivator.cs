@@ -13,6 +13,7 @@ namespace Turtle
             if (type is VType vtype)
             {
                 var obj = vm.Allocobj(vtype);
+                vm.Dup();
                 var ctor = vtype.GetConstructor(
                     args.Select(x => x.GetType()).ToArray());
                 ctor.Invoke(args);

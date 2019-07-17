@@ -64,6 +64,8 @@
     <Compile Include="FIR\FInstruction.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Storage\IStorage.cs" />
+    <Compile Include="Storage\MemStorage.cs" />
     <Compile Include="VM\AssemblyResolver.cs" />
     <Compile Include="VM\Callframe.cs" />
     <Compile Include="VM\Cecil2Net.cs" />
@@ -76,6 +78,7 @@
     <Compile Include="VType\VMethodInfo.cs" />
     <Compile Include="VType\VObject.cs" />
     <Compile Include="VType\VParameterInfo.cs" />
+    <Compile Include="VType\VPropertyInfo.cs" />
     <Compile Include="VType\VType.cs" />
   </ItemGroup>
   <ItemGroup>

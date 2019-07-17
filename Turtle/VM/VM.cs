@@ -41,6 +41,9 @@ namespace Turtle
         private object[] locals => callstack.Peek().locals;
 
         internal TypeResolver typeResolver { get; private set; }
+        internal IStorage storage { get; private set; }
+
+        private List<VType> types = new List<VType>();
 
         public VM()
         {
@@ -48,19 +51,30 @@ namespace Turtle
             callstack = new Stack<Callframe>();
 
             typeResolver = new TypeResolver();
+            storage = new MemStorage();
         }
 
         public void Build(ModuleDefinition module)
         {
+            Console.WriteLine("===BUILD===");
             foreach (var type in module.Types)
-                BuildType(type);    
+                types.Add(BuildType(type));
+            foreach (var type in types)
+                type.Initialize();
+            Console.WriteLine("===BUILD END===");
         }
-        private void BuildType(TypeDefinition type)
+        private VType BuildType(TypeDefinition type)
         {
-            var vtype = new VType(this, type);
-            typeResolver.AddType(vtype);
+            var vType = new VType(this, type);
+            typeResolver.AddType(vType);
+            return vType;
         }
 
+        public object Run(MethodDefinition method, object _this, object[] args)
+        {
+            Push(_this);
+            return Run(method, args);
+        }
         public object Run(MethodDefinition method, object[] args)
         {
             foreach (var arg in args)
@@ -84,7 +98,7 @@ namespace Turtle
         }
         private void Run(Instruction op)
         {
-            Console.WriteLine(op.OpCode);
+            Console.WriteLine(method.FullName + " / " +  op.OpCode + " / " + sp);
 
             switch (op.OpCode.Code)
             {
@@ -234,6 +248,10 @@ namespace Turtle
             var args = GetStack(ctor.Parameters.Count);
             VActivator.CreateInstance(this, type, args);
         }
+        internal void Dup()
+        {
+            Push(s1);
+        }
         private void RunNewobj(Instruction op)
         {
             var ctor = (MethodReference)op.Operand;
@@ -326,7 +344,8 @@ namespace Turtle
         private void RunCall(Instruction op)
         {
             var methodDef = ((MethodReference)op.Operand).Resolve();
-            var asm = AssemblyResolver.GetAssembly(methodDef.Module.Assembly);
+
+            Console.WriteLine("CALL " + methodDef.Name + " / " + sp);
 
             //var type = asm.GetType(methodDef.DeclaringType.FullName);
             var type = typeResolver.Resolve(methodDef.DeclaringType);
@@ -337,7 +356,11 @@ namespace Turtle
 
             MethodBase method = null;
             if (methodDef.IsConstructor)
+            {
                 method = type.GetConstructor(argTypes);
+                if (method == null)
+                    return;
+            }
             else
                 method = type.GetMethod(methodDef.Name, argTypes);
 
@@ -351,7 +374,8 @@ namespace Turtle
             {
                 var args = GetStack(method.GetParameters().Length);
                 var _this = stack[sp - method.GetParameters().Length - 1];
-                method.Invoke(_this, args);
+                Run(methodDef, args);
+                //method.Invoke(_this, args);
                 Pop(args.Length + 1);
             }
         }
@@ -370,13 +394,14 @@ namespace Turtle
         }
         private void RunRet(Instruction op)
         {
-            if (method.ReturnType.FullName != typeof(void).FullName)
-            {
+            var hasReturn = method.ReturnType.FullName != typeof(void).FullName;
+            if (hasReturn)
                 ret = s1;
-                Pop();
-            }
 
             PopMethod();
+
+            if (hasReturn)
+                Push(ret);
         }
 
         private object[] GetStack(int n)
@@ -406,6 +431,13 @@ namespace Turtle
             var callframe = callstack.Pop();
             bp = callframe.bp;
             cur = callframe.cur;
+
+            var method = callframe.method;
+            sp -= (method.Parameters.Count +
+                (method.IsStatic ? 0 : 1));
+
+            // temp
+            //Array.Clear(stack, sp, 64);
         }
     }
 }
