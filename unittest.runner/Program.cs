@@ -14,6 +14,9 @@ namespace unittest.runner
             var tests = new List<string>(
                 Directory.EnumerateFiles("..\\..\\..\\testcase", "*.txt", SearchOption.AllDirectories));
 
+            // Prepare testcases
+            Process.Start("unittest.exe").WaitForExit();
+
             foreach (var path in tests)
             {
                 var answer = File.ReadAllText(path);
