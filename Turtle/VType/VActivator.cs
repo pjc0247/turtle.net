@@ -4,19 +4,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Mono.Cecil;
+
 namespace Turtle
 {
     public class VActivator
     {
-        public static object CreateInstance(VM vm, Type type, object[] args)
+        public static object CreateInstance(VM vm, MethodReference ctor, Type type, object[] args)
         {
             if (type is VType vtype)
             {
                 var obj = vm.Allocobj(vtype);
+
+                if (ctor.DeclaringType is GenericInstanceType g)
+                    obj.genericArgs = g.GenericArguments.ToArray();
+
                 vm.Dup();
-                var ctor = vtype.GetConstructor(
+                var ctorImpl = vtype.GetConstructor(
                     args.Select(x => x.GetType()).ToArray());
-                ctor.Invoke(args);
+                ctorImpl.Invoke(obj, args);
 
                 return obj;
             }

@@ -22,8 +22,16 @@ namespace Turtle
         {
             if (typeRef.FullName == typeof(int).FullName)
                 return typeof(int);
+            if (typeRef.FullName == typeof(float).FullName)
+                return typeof(float);
             if (typeRef.FullName == typeof(object).FullName)
                 return typeof(object);
+
+            if (typeRef is GenericInstanceType g &&
+                g.HasGenericArguments)
+            {
+                typeRef = g.ElementType;
+            }
 
             VType vtype = null;
             if (vtypes.TryGetValue(typeRef.FullName, out vtype))

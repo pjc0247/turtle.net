@@ -33,30 +33,29 @@ namespace test
         }
     }
 
+    class G<T>
+    {
+        public G()
+        {
+            Console.WriteLine(typeof(T));
+        }
+
+        public static void Hello()
+        {
+            Console.WriteLine(typeof(T));
+        }
+    }
+
     class Program
     {
-        int A() => 1;
-
         static void Main(string[] args)
         {
-            var cc = new Program();
-            Console.WriteLine(cc.A());
-            Console.WriteLine(cc.A());
-            Console.WriteLine(cc.A());
-            Console.WriteLine(cc.A());
-            Console.WriteLine(cc.A());
-            Console.WriteLine(cc.A());
-
+            G<int>.Hello();
+            new G<float>();
             return;
 
             var c = new Bar();
 
-            Console.Write(c.bb);
-            Console.Write(c.bb);
-            Console.Write(c.bb);
-            Console.Write(c.bb);
-            Console.Write(c.bb);
-            Console.Write(c.bb);
             Console.Write(c.bb);
 
             c.bb = 12314;

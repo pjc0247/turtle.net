@@ -17,9 +17,10 @@ namespace Turtle
 
         private object[] stack;
         private Stack<Callframe> callstack;
-        private object ret;
         private int sp;
         private int bp;
+
+        private TypeReference[] genericBounds;
 
         private object s1 {
             get => stack[sp - 1];
@@ -73,6 +74,9 @@ namespace Turtle
         public object Run(MethodDefinition method, object _this, object[] args)
         {
             Push(_this);
+            if (_this is VObject vo)
+                genericBounds = vo.genericArgs;
+
             return Run(method, args);
         }
         public object Run(MethodDefinition method, object[] args)
@@ -83,7 +87,7 @@ namespace Turtle
             PushMethod(method);
             Run(method.Body.Instructions.ToArray());
 
-            return ret;
+            return s1;
         }
 
         private void Run(Instruction[] op)
@@ -188,9 +192,16 @@ namespace Turtle
         }
         private void RunLdtoken(Instruction op)
         {
-            var fd = (FieldDefinition)op.Operand;
-            var type = typeResolver.Resolve(fd.DeclaringType);
-            Push(type.GetField(fd.Name, fd.GetBindingFlags()).FieldHandle);
+            if (op.Operand is GenericParameter g)
+            {
+                var type = typeResolver.Resolve(genericBounds[g.Position]);
+                Push(type.TypeHandle);
+            }
+            else if (op.Operand is FieldDefinition fd)
+            {
+                var type = typeResolver.Resolve(fd.DeclaringType);
+                Push(type.GetField(fd.Name, fd.GetBindingFlags()).FieldHandle);
+            }
         }
 
         private void RunLdelem(Instruction op)
@@ -246,7 +257,7 @@ namespace Turtle
         {
             var type = typeResolver.Resolve(ctor.DeclaringType);
             var args = GetStack(ctor.Parameters.Count);
-            VActivator.CreateInstance(this, type, args);
+            VActivator.CreateInstance(this, ctor, type, args);
         }
         internal void Dup()
         {
@@ -255,11 +266,7 @@ namespace Turtle
         private void RunNewobj(Instruction op)
         {
             var ctor = (MethodReference)op.Operand;
-            var typeRef = ctor.DeclaringType;
-            var type = typeResolver.Resolve(typeRef);
-            var args = GetStack(ctor.Parameters.Count);
-
-            VActivator.CreateInstance(this, type, args);
+            Newobj(ctor);
         }
         private void RunNewarr(Instruction op)
         {
@@ -343,7 +350,8 @@ namespace Turtle
 
         private void RunCall(Instruction op)
         {
-            var methodDef = ((MethodReference)op.Operand).Resolve();
+            var methodRef = (MethodReference)op.Operand;
+            var methodDef = methodRef.Resolve();
 
             Console.WriteLine("CALL " + methodDef.Name + " / " + sp);
 
@@ -364,18 +372,25 @@ namespace Turtle
             else
                 method = type.GetMethod(methodDef.Name, argTypes);
 
+            if (methodRef.DeclaringType is GenericInstanceType g)
+            {
+                genericBounds = new TypeReference[g.GenericArguments.Count];
+                for (int i = 0; i < g.GenericArguments.Count; i++)
+                    genericBounds[i] = g.GenericArguments[i];
+            }
+
             if (methodDef.IsStatic)
             {
                 var args = GetStack(method.GetParameters().Length);
-                method.Invoke(null, args);
+                var ret = method.Invoke(null, args);
                 Pop(args.Length);
+                Push(ret);
             }
             else
             {
                 var args = GetStack(method.GetParameters().Length);
                 var _this = stack[sp - method.GetParameters().Length - 1];
-                Run(methodDef, args);
-                //method.Invoke(_this, args);
+                method.Invoke(_this, args);
                 Pop(args.Length + 1);
             }
         }
@@ -394,6 +409,7 @@ namespace Turtle
         }
         private void RunRet(Instruction op)
         {
+            object ret = null;
             var hasReturn = method.ReturnType.FullName != typeof(void).FullName;
             if (hasReturn)
                 ret = s1;

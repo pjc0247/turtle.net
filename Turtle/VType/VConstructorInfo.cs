@@ -62,7 +62,7 @@ namespace Turtle
 
         public override object Invoke(object obj, BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture)
         {
-            return vm.Run(method, parameters);
+            return vm.Run(method, obj, parameters);
         }
 
         public override bool IsDefined(Type attributeType, bool inherit)
