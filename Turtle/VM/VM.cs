@@ -117,6 +117,7 @@ namespace Turtle
                 case Code.Ldstr: RunLdstr(op); break;
                 case Code.Ldtoken: RunLdtoken(op); break;
                 case Code.Ldlen: RunLdlen(op); break;
+                case Code.Ldftn: RunLdftn(op); break;
 
                 case Code.Ldarg_0: Push(arg0); break;
 
@@ -215,6 +216,19 @@ namespace Turtle
         {
             var array = (Array)s1;
             Push(array.Length);
+        }
+        private void RunLdftn(Instruction op)
+        {
+            var methodRef = (MethodReference)op.Operand;
+            var type = typeResolver.Resolve(methodRef.DeclaringType);
+            var method = type.GetMethod(methodRef.Name);
+
+            
+
+            var c = Delegate.CreateDelegate(typeof(Action), method);
+            ;
+
+            Push(method.MethodHandle.Value);
         }
 
         private void RunLdelem(Instruction op)
@@ -339,7 +353,7 @@ namespace Turtle
             var _s1 = s1;
             if ((_s1 is bool b && b) ||
                 (_s1 is object o && o != null) ||
-                (!_s1.Equals(0)))
+                (_s1 != null && !_s1.Equals(0)))
             {
                 var inst = (Instruction)op.Operand;
                 cur = (Instruction)op.Operand;

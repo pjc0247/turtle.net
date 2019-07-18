@@ -9,6 +9,7 @@ namespace Turtle
     public class MemStorage : IStorage
     {
         private Dictionary<long, object> mem = new Dictionary<long, object>();
+        private long nextKey;
 
         public void Set(long key, object value)
         {
@@ -24,7 +25,7 @@ namespace Turtle
         public long GetNextKey()
         {
             // everything is not thread-safe at this moment
-            return mem.Count;
+            return nextKey++;
         }
     }
 }
