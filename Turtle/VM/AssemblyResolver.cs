@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,13 @@ namespace Turtle
 {
     internal class AssemblyResolver
     {
-        public static Assembly GetAssembly(AssemblyDefinition assemblyDef)
+        private string basepath;
+
+        public AssemblyResolver(string basepath)
+        {
+            this.basepath = basepath;
+        }
+        public Assembly GetAssembly(AssemblyDefinition assemblyDef)
         {
             var asm = AppDomain.CurrentDomain.GetAssemblies()
                 .Where(x => x.FullName == assemblyDef.FullName)
@@ -21,7 +28,8 @@ namespace Turtle
             if (asm != null)
                 return asm;
 
-            return Assembly.Load(assemblyDef.FullName);
+            return Assembly.LoadFile(Path.Combine(
+                Path.GetFullPath(basepath), assemblyDef.MainModule.Name));
         }
     }
 }

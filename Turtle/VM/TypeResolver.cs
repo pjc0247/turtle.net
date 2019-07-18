@@ -13,6 +13,15 @@ namespace Turtle
     internal class TypeResolver
     {
         private Dictionary<string, VType> vtypes = new Dictionary<string, VType>();
+        private AssemblyResolver assemblyResolver;
+        private string basepath;
+
+        public TypeResolver(string basepath)
+        {
+            this.basepath = basepath;
+
+            assemblyResolver = new AssemblyResolver(basepath);
+        }
 
         public void AddType(VType type)
         {
@@ -20,25 +29,34 @@ namespace Turtle
         }
         public Type Resolve(TypeReference typeRef)
         {
-            if (typeRef.FullName == typeof(int).FullName)
-                return typeof(int);
-            if (typeRef.FullName == typeof(float).FullName)
-                return typeof(float);
-            if (typeRef.FullName == typeof(object).FullName)
-                return typeof(object);
-
             if (typeRef is GenericInstanceType g &&
                 g.HasGenericArguments)
             {
-                typeRef = g.ElementType;
+                var typeDef = Resolve(g.ElementType);
+                return typeDef.MakeGenericType(
+                    g.GenericArguments.Select(x => Resolve(x)).ToArray());
+            }
+
+            if (typeRef.IsArray)
+            {
+                return Resolve(typeRef.GetElementType())
+                    .MakeArrayType();
             }
 
             VType vtype = null;
             if (vtypes.TryGetValue(typeRef.FullName, out vtype))
                 return vtype;
 
-            var asm = AssemblyResolver.GetAssembly(typeRef.Module.Assembly);
-            return asm.GetType(typeRef.FullName);
+            var asm = assemblyResolver.GetAssembly(typeRef.Module.Assembly);
+            var type = asm.GetType(typeRef.FullName);
+
+            if (type == null)
+                type = typeof(int).Assembly.GetType(typeRef.FullName);
+
+            if (type == null)
+                throw new InvalidOperationException("Type not resolved");
+
+            return type;
         }
     }
 }

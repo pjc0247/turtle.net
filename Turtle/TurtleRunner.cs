@@ -14,7 +14,7 @@ namespace Turtle
         {
             var test = ModuleDefinition.ReadModule(executablePath);
 
-            var vm = new VM();
+            var vm = new VM(".");
             var main = test.Assembly.EntryPoint.Body.Instructions;
 
             vm.Build(test);

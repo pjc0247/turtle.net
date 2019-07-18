@@ -92,6 +92,10 @@
       <Project>{4d463280-c8fc-48d7-b2c6-1878672aa407}</Project>
       <Name>test</Name>
     </ProjectReference>
+    <ProjectReference Include="..\unittest\unittest.csproj">
+      <Project>{120b4ec5-4d27-4004-9df2-7c7669225554}</Project>
+      <Name>unittest</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

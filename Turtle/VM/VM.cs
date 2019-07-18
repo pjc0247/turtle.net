@@ -46,12 +46,12 @@ namespace Turtle
 
         private List<VType> types = new List<VType>();
 
-        public VM()
+        public VM(string basepath)
         {
             stack = new object[1024];
             callstack = new Stack<Callframe>();
 
-            typeResolver = new TypeResolver();
+            typeResolver = new TypeResolver(basepath);
             storage = new MemStorage();
         }
 
@@ -59,7 +59,11 @@ namespace Turtle
         {
             Console.WriteLine("===BUILD===");
             foreach (var type in module.Types)
+            {
                 types.Add(BuildType(type));
+                foreach (var type2 in type.NestedTypes)
+                    types.Add(BuildType(type2));
+            }
             foreach (var type in types)
                 type.Initialize();
             Console.WriteLine("===BUILD END===");
@@ -112,6 +116,7 @@ namespace Turtle
                 case Code.Ldnull: RunLdnull(op); break;
                 case Code.Ldstr: RunLdstr(op); break;
                 case Code.Ldtoken: RunLdtoken(op); break;
+                case Code.Ldlen: RunLdlen(op); break;
 
                 case Code.Ldarg_0: Push(arg0); break;
 
@@ -205,6 +210,11 @@ namespace Turtle
                 var type = typeResolver.Resolve(fd.DeclaringType);
                 Push(type.GetField(fd.Name, fd.GetBindingFlags()).FieldHandle);
             }
+        }
+        private void RunLdlen(Instruction op)
+        {
+            var array = (Array)s1;
+            Push(array.Length);
         }
 
         private void RunLdelem(Instruction op)
@@ -359,7 +369,7 @@ namespace Turtle
             Console.WriteLine("CALL " + methodDef.Name + " / " + sp);
 
             //var type = asm.GetType(methodDef.DeclaringType.FullName);
-            var type = typeResolver.Resolve(methodDef.DeclaringType);
+            var type = typeResolver.Resolve(methodRef.DeclaringType);
             var argTypes = methodDef.Parameters
                 .Select(x => x.ParameterType)
                 .ToArray()
@@ -380,6 +390,12 @@ namespace Turtle
                 genericBounds = new TypeReference[g.GenericArguments.Count];
                 for (int i = 0; i < g.GenericArguments.Count; i++)
                     genericBounds[i] = g.GenericArguments[i];
+            }
+
+            if (method.ContainsGenericParameters)
+            {
+                var methodInfo = (MethodInfo)method;
+                //methodInfo.MakeGenericMethod(meth)
             }
 
             if (methodDef.IsStatic)

@@ -28,7 +28,7 @@ namespace Turtle
 
         public override string AssemblyQualifiedName => throw new NotImplementedException();
 
-        public override Type BaseType => throw new NotImplementedException();
+        public override Type BaseType => typeof(VType);
 
         public override Type UnderlyingSystemType => this;
 
@@ -48,20 +48,6 @@ namespace Turtle
 
             _fullName = type.FullName;
             _name = type.Name;
-
-            Console.WriteLine(type.FullName);
-            foreach (var method in type.Methods)
-            {
-                Console.WriteLine("  " + method.FullName);
-                if (method.IsConstructor)
-                    AddCtor(method);
-                else
-                    AddMethod(method);
-            }
-            foreach (var field in type.Fields)
-                AddField(field);
-            foreach (var property in type.Properties)
-                AddProperty(property);
         }
 
         public VConstructorInfo AddCtor(MethodDefinition method)
@@ -95,6 +81,20 @@ namespace Turtle
 
         public void Initialize()
         {
+            Console.WriteLine(type.FullName);
+            foreach (var method in type.Methods)
+            {
+                Console.WriteLine("  " + method.FullName);
+                if (method.IsConstructor)
+                    AddCtor(method);
+                else
+                    AddMethod(method);
+            }
+            foreach (var field in type.Fields)
+                AddField(field);
+            foreach (var property in type.Properties)
+                AddProperty(property);
+
             foreach (var field in fields)
             {
                 if (field.IsStatic) {
@@ -200,7 +200,7 @@ namespace Turtle
 
         protected override ConstructorInfo GetConstructorImpl(BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
         {
-            return ctors.FirstOrDefault();
+            return ctors.Where(x => x.IsStatic == false).FirstOrDefault();
         }
 
         protected override MethodInfo GetMethodImpl(string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)

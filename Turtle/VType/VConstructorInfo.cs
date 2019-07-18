@@ -15,7 +15,8 @@ namespace Turtle
     {
         public override RuntimeMethodHandle MethodHandle => throw new NotImplementedException();
 
-        public override System.Reflection.MethodAttributes Attributes => throw new NotImplementedException();
+        public override System.Reflection.MethodAttributes Attributes => _Attributes;
+        private System.Reflection.MethodAttributes _Attributes;
 
         public override string Name => throw new NotImplementedException();
 
@@ -35,6 +36,15 @@ namespace Turtle
             parameters = new VParameterInfo[method.Parameters.Count];
             for (int i = 0; i < method.Parameters.Count; i++)
                 parameters[i] = new VParameterInfo(vm, method.Parameters[i]);
+
+            BuildAttributes();
+        }
+        private void BuildAttributes()
+        {
+            if (method.IsStatic) _Attributes |= System.Reflection.MethodAttributes.Static;
+
+            if (method.IsPublic) _Attributes |= System.Reflection.MethodAttributes.Public;
+            else _Attributes |= System.Reflection.MethodAttributes.Private;
         }
 
         public override object[] GetCustomAttributes(bool inherit)
