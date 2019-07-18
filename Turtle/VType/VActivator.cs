@@ -19,7 +19,6 @@ namespace Turtle
                 if (ctor.DeclaringType is GenericInstanceType g)
                     obj.genericArgs = g.GenericArguments.ToArray();
 
-                vm.Dup();
                 var ctorImpl = vtype.GetConstructor(
                     args.Select(x => x.GetType()).ToArray());
                 ctorImpl.Invoke(obj, args);

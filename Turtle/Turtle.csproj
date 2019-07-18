@@ -71,6 +71,7 @@
     <Compile Include="VM\AssemblyResolver.cs" />
     <Compile Include="VM\Callframe.cs" />
     <Compile Include="VM\Cecil2Net.cs" />
+    <Compile Include="VM\Delegate\CapturedDelegate.cs" />
     <Compile Include="VM\MadMath.cs" />
     <Compile Include="VM\TypeResolver.cs" />
     <Compile Include="VM\VM.cs" />

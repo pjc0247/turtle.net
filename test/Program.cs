@@ -50,8 +50,12 @@ namespace test
     {
         static void Main(string[] args)
         {
-            Foo a = null;
-            a.Hello();
+            var a = new Func<float, float>((f) =>
+            {
+                return 14;
+            });
+
+            Console.WriteLine(a(1));
 
             return;
         }

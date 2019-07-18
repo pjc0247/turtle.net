@@ -94,6 +94,8 @@ namespace Turtle
             PushMethod(method);
             Run(method.Body.Instructions.ToArray());
 
+            if (method.ReturnType.FullName == typeof(void).FullName)
+                return null;
             return s1;
         }
 
@@ -223,12 +225,12 @@ namespace Turtle
             var type = typeResolver.Resolve(methodRef.DeclaringType);
             var method = type.GetMethod(methodRef.Name);
 
-            
+            (var del, var ptr) = CapturedDelegateFactory.Create(
+                method.GetParameters().Select(x => x.ParameterType).ToArray(),
+                this, s1, (MethodDefinition)methodRef);
 
-            var c = Delegate.CreateDelegate(typeof(Action), method);
-            ;
-
-            Push(method.MethodHandle.Value);
+            s1 = del;
+            Push(ptr);
         }
 
         private void RunLdelem(Instruction op)
@@ -284,7 +286,7 @@ namespace Turtle
         {
             var type = typeResolver.Resolve(ctor.DeclaringType);
             var args = GetStack(ctor.Parameters.Count);
-            VActivator.CreateInstance(this, ctor, type, args);
+            Push(VActivator.CreateInstance(this, ctor, type, args));
         }
         internal void Dup()
         {
@@ -380,12 +382,20 @@ namespace Turtle
             var methodRef = (MethodReference)op.Operand;
             var methodDef = methodRef.Resolve();
 
+            if (methodRef.DeclaringType is GenericInstanceType g)
+            {
+                genericBounds = new TypeReference[g.GenericArguments.Count];
+                for (int i = 0; i < g.GenericArguments.Count; i++)
+                    genericBounds[i] = g.GenericArguments[i];
+            }
+
             Console.WriteLine("CALL " + methodDef.Name + " / " + sp);
 
             //var type = asm.GetType(methodDef.DeclaringType.FullName);
             var type = typeResolver.Resolve(methodRef.DeclaringType);
-            var argTypes = methodDef.Parameters
+            var argTypes = methodRef.Parameters
                 .Select(x => x.ParameterType)
+                .Select(x => x.Name.StartsWith("!") ? genericBounds[int.Parse(x.Name.Substring(1))] : x)
                 .ToArray()
                 .ToTypes(typeResolver);
 
@@ -399,12 +409,7 @@ namespace Turtle
             else
                 method = type.GetMethod(methodDef.Name, argTypes);
 
-            if (methodRef.DeclaringType is GenericInstanceType g)
-            {
-                genericBounds = new TypeReference[g.GenericArguments.Count];
-                for (int i = 0; i < g.GenericArguments.Count; i++)
-                    genericBounds[i] = g.GenericArguments[i];
-            }
+            
 
             if (method.ContainsGenericParameters)
             {

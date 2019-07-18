@@ -33,8 +33,8 @@ namespace Turtle
                 g.HasGenericArguments)
             {
                 var typeDef = Resolve(g.ElementType);
-                return typeDef.MakeGenericType(
-                    g.GenericArguments.Select(x => Resolve(x)).ToArray());
+                var c = g.GenericArguments.Select(x => Resolve(x)).ToArray();
+                return typeDef.MakeGenericType(c);
             }
 
             if (typeRef.IsArray)
@@ -52,6 +52,8 @@ namespace Turtle
 
             if (type == null)
                 type = typeof(int).Assembly.GetType(typeRef.FullName);
+            if (type == null)
+                type = typeof(System.Linq.Enumerable).Assembly.GetType(typeRef.FullName);
 
             if (type == null)
                 throw new InvalidOperationException("Type not resolved");

@@ -14,12 +14,14 @@ namespace Turtle
     {
         static void Main(string[] args)
         {
-            var test = ModuleDefinition.ReadModule("..\\..\\..\\unittest\\bin\\Debug\\unittest.exe");
+            //var test = ModuleDefinition.ReadModule("..\\..\\..\\unittest\\bin\\Debug\\unittest.exe");
+            var test = ModuleDefinition.ReadModule("test.exe");
             var module = ModuleDefinition.ReadModule(
                 typeof(Console).Assembly.Location
                 );
 
-            var vm = new VM("..\\..\\..\\unittest\\bin\\Debug\\");
+            //var vm = new VM("..\\..\\..\\unittest\\bin\\Debug\\");
+            var vm = new VM(".");
             var main = test.Assembly.EntryPoint.Body.Instructions;
 
             vm.Build(test);
