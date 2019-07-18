@@ -161,6 +161,9 @@ namespace Turtle
                 case Code.Dup: Push(s1); break;
                 case Code.Add: RunAdd(op); break;
                 case Code.Sub: RunSub(op); break;
+                case Code.Mul: RunMul(op); break;
+                case Code.Div: RunDiv(op); break;
+                case Code.Mul_Ovf: RunMod(op); break;
                 case Code.Neg: RunNeg(op); break;
 
                 case Code.Cgt: RunCgt(op); break;
@@ -316,6 +319,21 @@ namespace Turtle
         private void RunSub(Instruction op)
         {
             s2 = MadMath.Sub(s2, s1);
+            sp--;
+        }
+        private void RunMul(Instruction op)
+        {
+            s2 = MadMath.Mul(s2, s1);
+            sp--;
+        }
+        private void RunDiv(Instruction op)
+        {
+            s2 = MadMath.Div(s2, s1);
+            sp--;
+        }
+        private void RunMod(Instruction op)
+        {
+            s2 = MadMath.Mod(s2, s1);
             sp--;
         }
         private void RunNeg(Instruction op)

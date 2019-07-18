@@ -43,6 +43,54 @@ namespace Turtle
             return method?.Invoke(null, new object[] { a, b })
                 ?? throw new InvalidOperationException();
         }
+        public static object Mul(object a, object b)
+        {
+            if (a.GetType().IsPrimitive)
+            {
+                (a, b) = Promote(a, b);
+
+                if (a is double) return (double)a - (double)b;
+                if (a is float) return (float)a - (float)b;
+                if (a is Int64) return (Int64)a - (Int64)b;
+                if (a is Int32) return (Int32)a - (Int32)b;
+            }
+
+            var method = GetMulMethod(a);
+            return method?.Invoke(null, new object[] { a, b })
+                ?? throw new InvalidOperationException();
+        }
+        public static object Div(object a, object b)
+        {
+            if (a.GetType().IsPrimitive)
+            {
+                (a, b) = Promote(a, b);
+
+                if (a is double) return (double)a / (double)b;
+                if (a is float) return (float)a / (float)b;
+                if (a is Int64) return (Int64)a / (Int64)b;
+                if (a is Int32) return (Int32)a / (Int32)b;
+            }
+
+            var method = GetDivMethod(a);
+            return method?.Invoke(null, new object[] { a, b })
+                ?? throw new InvalidOperationException();
+        }
+        public static object Mod(object a, object b)
+        {
+            if (a.GetType().IsPrimitive)
+            {
+                (a, b) = Promote(a, b);
+
+                if (a is double) return (double)a % (double)b;
+                if (a is float) return (float)a % (float)b;
+                if (a is Int64) return (Int64)a % (Int64)b;
+                if (a is Int32) return (Int32)a % (Int32)b;
+            }
+
+            var method = GetModMethod(a);
+            return method?.Invoke(null, new object[] { a, b })
+                ?? throw new InvalidOperationException();
+        }
 
         public static object Neg(object a)
         {
@@ -148,6 +196,12 @@ namespace Turtle
             => left.GetType().GetMethod("op_Addition");
         private static MethodInfo GetSubMethod(object left)
             => left.GetType().GetMethod("op_Subtraction");
+        private static MethodInfo GetMulMethod(object left)
+            => left.GetType().GetMethod("op_Multiply");
+        private static MethodInfo GetDivMethod(object left)
+            => left.GetType().GetMethod("op_Division");
+        private static MethodInfo GetModMethod(object left)
+            => left.GetType().GetMethod("op_Modulus");
 
         private static MethodInfo GetEqMethod(object left)
             => left.GetType().GetMethod("op_Equality");
