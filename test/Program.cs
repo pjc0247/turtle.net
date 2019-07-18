@@ -15,14 +15,12 @@ namespace test
     }
     class Bar : Foo
     {
-        [Test]
-        public int bb { get; set; } = 1;
-
-        public int a = 1;
+        /*
         public override void Hello()
         {
             Console.WriteLine("HelloBar");
         }
+        */
     }
 
     class TestAttribute : Attribute
@@ -50,12 +48,8 @@ namespace test
     {
         static void Main(string[] args)
         {
-            var a = new Func<float, float>((f) =>
-            {
-                return 14;
-            });
-
-            Console.WriteLine(a(1));
+            var b = new Bar();
+            b.Hello();
 
             return;
         }

@@ -452,6 +452,24 @@ namespace Turtle
         }
         private void RunCallvirt(Instruction op)
         {
+            var methodRef = (MethodReference)op.Operand;
+            var _this = stack[sp - methodRef.Parameters.Count - 1];
+
+            if (_this is VObject vo)
+            {
+                var argTypes = methodRef.Parameters
+                    .Select(x => x.ParameterType)
+                    .Select(x => x.Name.StartsWith("!") ? genericBounds[int.Parse(x.Name.Substring(1))] : x)
+                    .ToArray()
+                    .ToTypes(typeResolver);
+                var method = vo.type.GetMethod(methodRef.Name, argTypes);
+                var args = GetStack(method.GetParameters().Length);
+                method.Invoke(_this, args);
+                Pop(args.Length + 1);
+
+                return;
+            }
+
             RunCall(op);
         }
 
