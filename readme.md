@@ -1,7 +1,7 @@
 turtle.net
 ====
 .Net VM built on a top of .Net.<br>
-MSIL VM for certain purposes such as smart-contract and custom script engine.
+for certain purposes such as smart-contract and custom script engine.
 
 
 __`Hello World` on the turtle VM__
