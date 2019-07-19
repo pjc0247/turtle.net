@@ -112,7 +112,7 @@ namespace Turtle
 
         public override ConstructorInfo[] GetConstructors(BindingFlags bindingAttr)
         {
-            throw new NotImplementedException();
+            return ctors.ToArray();
         }
 
         public override object[] GetCustomAttributes(bool inherit)

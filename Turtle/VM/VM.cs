@@ -102,14 +102,18 @@ namespace Turtle
             return s1;
         }
 
-        private void Run(Instruction[] op)
+        private void Run(Instruction[] ops)
         {
-            cur = op[0];
+            cur = ops[0];
             while (cur != null)
             {
-                Run(cur);
+                var op = cur;
 
-                cur = cur?.Next;
+                Run(op);
+
+                if (op.OpCode.Code == Code.Ret)
+                    return;
+                cur = op?.Next;
             }
         }
         private void Run(Instruction op)
@@ -153,6 +157,8 @@ namespace Turtle
                 case Code.Stloc_1: locals[1] = s1; Pop(); break;
                 case Code.Stloc_2: locals[2] = s1; Pop(); break;
                 case Code.Stloc_3: locals[3] = s1; Pop(); break;
+                case Code.Ldloca: Push(locals[((VariableDefinition)op.Operand).Index]); break;
+                case Code.Ldloca_S: Push(locals[((VariableDefinition)op.Operand).Index]); break;
 
                 case Code.Ldfld: RunLdfld(op); break;
                 case Code.Stfld: RunStfld(op); break;
@@ -163,6 +169,7 @@ namespace Turtle
 
                 case Code.Newobj: RunNewobj(op); break;
                 case Code.Newarr: RunNewarr(op); break;
+                case Code.Initobj: RunInitobj(op); break;
 
                 case Code.Dup: Push(s1); break;
                 case Code.Add: RunAdd(op); break;
@@ -256,7 +263,7 @@ namespace Turtle
         }
         private void RunLdfld(Instruction op)
         {
-            var obj = (VObject)s2;
+            var obj = (VObject)s1;
             var fieldRef  = (FieldReference)op.Operand;
             var field = obj.type.GetField(fieldRef.Name);
             s1 = field.GetValue(obj);
@@ -288,6 +295,11 @@ namespace Turtle
         internal VObject Allocobj(VType type)
         {
             var obj = new VObject(type);
+            return obj;
+        }
+        internal VObject AllocobjStack(VType type)
+        {
+            var obj = new VObject(type);
             Push(obj);
             return obj;
         }
@@ -315,6 +327,16 @@ namespace Turtle
                 typeResolver.Resolve(type), size);
 
             Push(array);
+        }
+        private void RunInitobj(Instruction op)
+        {
+            var typeRef = (TypeReference)op.Operand;
+            var type = typeResolver.Resolve(typeRef);
+            var addr = (int)Pop();
+
+            var obj = VActivator.CreateInstance(this, type, new object[] { });
+
+            locals[addr] = obj;
         }
 
         private void RunAdd(Instruction op)
@@ -520,6 +542,8 @@ namespace Turtle
 
             bp = sp - (method.Parameters.Count +
                 (method.IsStatic ? 0 : 1));
+
+            InitLocals();
             //method.Body.MaxStackSize
         }
         private void PopMethod()
@@ -534,6 +558,16 @@ namespace Turtle
 
             // temp
             //Array.Clear(stack, sp, 64);
+        }
+        private void InitLocals()
+        {
+            var vars = method.Body.Variables;
+            for (int i = 0; i < vars.Count; i++)
+            {
+                if (vars[i].VariableType.IsValueType)
+                    locals[i] = Allocobj((VType)typeResolver.Resolve(vars[i].VariableType));
+            }
+            ;
         }
     }
 }

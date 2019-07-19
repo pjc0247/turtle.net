@@ -6,6 +6,16 @@ using System.Threading.Tasks;
 
 namespace test
 {
+    struct BOO
+    {
+        public int a;
+
+        public BOO(int a)
+        {
+            this.a = a;
+        }
+    }
+
     class Foo
     {
         public virtual void Hello()
@@ -49,8 +59,7 @@ namespace test
     {
         static void Main(string[] args)
         {
-            var b = new Bar();
-            b.a = 1234;
+            var b = new BOO(5);
             Console.WriteLine(b.a);
 
             return;

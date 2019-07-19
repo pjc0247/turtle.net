@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,14 +15,29 @@ namespace Turtle
         {
             if (type is VType vtype)
             {
-                var obj = vm.Allocobj(vtype);
+                var obj = vm.AllocobjStack(vtype);
 
                 if (ctor.DeclaringType is GenericInstanceType g)
                     obj.genericArgs = g.GenericArguments.ToArray();
 
                 var ctorImpl = vtype.GetConstructor(
-                    args.Select(x => x.GetType()).ToArray());
+                    args.Select(x => x?.GetType()).ToArray());
                 ctorImpl.Invoke(obj, args);
+
+                return obj;
+            }
+            else
+                return Activator.CreateInstance(type, args);
+        }
+        public static object CreateInstance(VM vm, Type type, object[] args)
+        {
+            if (type is VType vtype)
+            {
+                var obj = vm.AllocobjStack(vtype);
+                var ctor = type.GetConstructor(
+                    args.Select(x => x?.GetType()).ToArray());
+
+                ctor?.Invoke(obj, args);
 
                 return obj;
             }
