@@ -37,6 +37,9 @@ namespace Turtle
             set => stack[sp - 3] = value;
         }
         private object arg0 => stack[bp];
+        private object arg1 => stack[bp + 1];
+        private object arg2 => stack[bp + 2];
+        private object arg3 => stack[bp + 3];
 
         private MethodDefinition method => callstack.Peek().method;
         private object[] locals => callstack.Peek().locals;
@@ -122,6 +125,9 @@ namespace Turtle
                 case Code.Ldftn: RunLdftn(op); break;
 
                 case Code.Ldarg_0: Push(arg0); break;
+                case Code.Ldarg_1: Push(arg1); break;
+                case Code.Ldarg_2: Push(arg2); break;
+                case Code.Ldarg_3: Push(arg3); break;
 
                 case Code.Ldc_I4_0: Push(0); break;
                 case Code.Ldc_I4_1: Push(1); break;

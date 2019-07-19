@@ -12,11 +12,11 @@ namespace Turtle
 {
     public sealed class VParameterInfo : ParameterInfo
     {
-        private VM vm;
-        private ParameterDefinition parameter;
-
         public override Type ParameterType => _ParameterType;
         private Type _ParameterType;
+
+        private VM vm;
+        private ParameterDefinition parameter;
 
         public VParameterInfo(VM vm, ParameterDefinition parameter)
         {

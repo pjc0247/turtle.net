@@ -15,6 +15,7 @@ namespace test
     }
     class Bar : Foo
     {
+        public int a { get; set; }
         /*
         public override void Hello()
         {
@@ -49,7 +50,8 @@ namespace test
         static void Main(string[] args)
         {
             var b = new Bar();
-            b.Hello();
+            b.a = 1234;
+            Console.WriteLine(b.a);
 
             return;
         }

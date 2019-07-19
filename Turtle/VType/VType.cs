@@ -19,12 +19,12 @@ namespace Turtle
 
         public override Assembly Assembly => throw new NotImplementedException();
 
-        public override string FullName => _fullName;
-        private string _fullName;
-        public override string Name => _name;
-        private string _name;
-
-        public override string Namespace => throw new NotImplementedException();
+        public override string FullName => _FullName;
+        private string _FullName;
+        public override string Name => _Name;
+        private string _Name;
+        public override string Namespace => _Namespace;
+        private string _Namespace;
 
         public override string AssemblyQualifiedName => throw new NotImplementedException();
 
@@ -46,8 +46,9 @@ namespace Turtle
             this.vm = vm;
             this.type = type;
 
-            _fullName = type.FullName;
-            _name = type.Name;
+            _FullName = type.FullName;
+            _Name = type.Name;
+            _Namespace = type.Namespace;
         }
 
         public VConstructorInfo AddCtor(MethodDefinition method)
@@ -74,7 +75,7 @@ namespace Turtle
         }
         public VPropertyInfo AddProperty(PropertyDefinition property)
         {
-            var vProperty = new VPropertyInfo(vm, property);
+            var vProperty = new VPropertyInfo(vm, property, this);
             properties.Add(vProperty);
             return vProperty;
         }

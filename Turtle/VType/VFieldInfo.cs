@@ -13,7 +13,8 @@ namespace Turtle
 {
     public class VFieldInfo : FieldInfo
     {
-        public override RuntimeFieldHandle FieldHandle => throw new NotImplementedException();
+        public override string Name => _Name;
+        private string _Name;
 
         public override Type FieldType => _FieldType;
         private Type _FieldType;
@@ -24,11 +25,9 @@ namespace Turtle
         public override System.Reflection.FieldAttributes Attributes => _Attributes;
         private System.Reflection.FieldAttributes _Attributes;
 
-        public override string Name => _Name;
-        private string _Name;
-
         public object InitialValue => field.InitialValue;
 
+        public override RuntimeFieldHandle FieldHandle => throw new NotImplementedException();
         public override Type ReflectedType => throw new NotImplementedException();
 
         private VM vm;
@@ -77,6 +76,10 @@ namespace Turtle
         {
             throw new NotImplementedException();
         }
+        public override bool IsDefined(Type attributeType, bool inherit)
+        {
+            throw new NotImplementedException();
+        }
 
         public override object GetValue(object obj)
         {
@@ -95,11 +98,6 @@ namespace Turtle
                 vm.storage.Set(ptr, value);
             else
                 throw new ArgumentException(nameof(obj));
-        }
-
-        public override bool IsDefined(Type attributeType, bool inherit)
-        {
-            throw new NotImplementedException();
         }
     }
 }
