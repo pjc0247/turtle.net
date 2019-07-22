@@ -23,8 +23,9 @@ namespace Turtle
         private string _Name;
 
         public override Type DeclaringType => throw new NotImplementedException();
-
         public override Type ReflectedType => throw new NotImplementedException();
+        public override Type ReturnType => _ReturnType;
+        private Type _ReturnType;
 
         private VM vm;
         private MethodDefinition method;
@@ -36,6 +37,7 @@ namespace Turtle
             this.method = method;
 
             _Name = method.Name;
+            _ReturnType = vm.typeResolver.Resolve(method.ReturnType);
 
             parameters = new VParameterInfo[method.Parameters.Count];
             for (int i = 0; i < method.Parameters.Count; i++)

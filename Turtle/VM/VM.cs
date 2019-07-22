@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -12,6 +13,9 @@ namespace Turtle
 {
     public class VM
     {
+        internal Assembly assembly;
+        private string basepath;
+
         private OpCode[] ops;
         private Instruction cur;
 
@@ -51,6 +55,8 @@ namespace Turtle
 
         public VM(string basepath)
         {
+            this.basepath = basepath;
+
             stack = new object[1024];
             callstack = new Stack<Callframe>();
 
@@ -60,6 +66,8 @@ namespace Turtle
 
         public void Build(ModuleDefinition module)
         {
+            assembly = Assembly.LoadFile(Path.Combine(Path.GetFullPath(basepath), module.FileName));
+
             Console.WriteLine("===BUILD===");
             foreach (var type in module.Types)
             {
@@ -113,7 +121,8 @@ namespace Turtle
 
                 if (op.OpCode.Code == Code.Ret)
                     return;
-                cur = op?.Next;
+                if (cur == op)
+                    cur = op?.Next;
             }
         }
         private void Run(Instruction op)
@@ -189,6 +198,10 @@ namespace Turtle
                 case Code.Brfalse_S: RunBrfalse(op); break;
                 case Code.Brtrue: RunBrtrue(op); break;
                 case Code.Brtrue_S: RunBrtrue(op); break;
+                case Code.Blt:
+                case Code.Blt_S: RunBlt(op); break;
+                case Code.Bgt:
+                case Code.Bgt_S: RunBlt(op); break;
 
                 case Code.Castclass: RunCastclass(op); break;
                 case Code.Box: RunBox(op); break;
@@ -200,6 +213,10 @@ namespace Turtle
                 case Code.Switch: RunSwitch(op); break;
                 case Code.Throw: RunThrow(op); break;
                 case Code.Ret: RunRet(op); break;
+
+                default:
+                    Console.WriteLine("Unknown opcode: " + op.OpCode.Code);
+                    break;
             }
         }
 
@@ -226,14 +243,15 @@ namespace Turtle
             }
             else if (op.Operand is FieldDefinition fd)
             {
-                var type = typeResolver.Resolve(fd.DeclaringType);
+                var type = assembly.GetType(fd.DeclaringType.Name);
+                //var type = typeResolver.Resolve(fd.DeclaringType);
                 Push(type.GetField(fd.Name, fd.GetBindingFlags()).FieldHandle);
             }
         }
         private void RunLdlen(Instruction op)
         {
             var array = (Array)s1;
-            Push(array.Length);
+            s1 = array.Length;
         }
         private void RunLdftn(Instruction op)
         {
@@ -241,8 +259,12 @@ namespace Turtle
             var type = typeResolver.Resolve(methodRef.DeclaringType);
             var method = type.GetMethod(methodRef.Name);
 
+            var types = method.GetParameters().Select(x => x.ParameterType);
+            if (method.ReturnType.FullName != typeof(void).FullName)
+                types = types.Concat(new Type[] { method.ReturnType });
+
             (var del, var ptr) = CapturedDelegateFactory.Create(
-                method.GetParameters().Select(x => x.ParameterType).ToArray(),
+                types.ToArray(),
                 this, s1, (MethodDefinition)methodRef);
 
             s1 = del;
@@ -330,6 +352,8 @@ namespace Turtle
         }
         private void RunInitobj(Instruction op)
         {
+            Pop();
+            /*
             var typeRef = (TypeReference)op.Operand;
             var type = typeResolver.Resolve(typeRef);
             var addr = (int)Pop();
@@ -337,6 +361,7 @@ namespace Turtle
             var obj = VActivator.CreateInstance(this, type, new object[] { });
 
             locals[addr] = obj;
+            */
         }
 
         private void RunAdd(Instruction op)
@@ -407,6 +432,16 @@ namespace Turtle
                 cur = (Instruction)op.Operand;
             }
         }
+        private void RunBlt(Instruction op)
+        {
+            if (MadMath.L(s2, s1))
+                cur = (Instruction)op.Operand;
+        }
+        private void RunBgt(Instruction op)
+        {
+            if (MadMath.G(s2, s1))
+                cur = (Instruction)op.Operand;
+        }
 
         private void RunCastclass(Instruction op)
         {
@@ -468,13 +503,20 @@ namespace Turtle
                 var args = GetStack(method.GetParameters().Length);
                 var ret = method.Invoke(null, args);
                 Pop(args.Length);
-                Push(ret);
+
+                if (((MethodInfo)method).ReturnType.FullName != typeof(void).FullName)
+                    Push(ret);
             }
             else
             {
                 var args = GetStack(method.GetParameters().Length);
                 var _this = stack[sp - method.GetParameters().Length - 1];
-                method.Invoke(_this, args);
+                var ret = method.Invoke(_this, args);
+
+                if (method is MethodInfo methodInfo &&
+                    methodInfo.ReturnType.FullName != typeof(void).FullName)
+                    Push(ret);
+
                 Pop(args.Length + 1);
             }
         }
@@ -564,10 +606,11 @@ namespace Turtle
             var vars = method.Body.Variables;
             for (int i = 0; i < vars.Count; i++)
             {
-                if (vars[i].VariableType.IsValueType)
-                    locals[i] = Allocobj((VType)typeResolver.Resolve(vars[i].VariableType));
+                var typeRef = vars[i].VariableType;
+                var isStruct = typeRef.IsValueType && !typeRef.IsPrimitive;
+                if (isStruct)
+                    locals[i] = Allocobj((VType)typeResolver.Resolve(typeRef));
             }
-            ;
         }
     }
 }

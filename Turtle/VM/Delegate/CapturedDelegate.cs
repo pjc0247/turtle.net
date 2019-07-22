@@ -13,15 +13,35 @@ namespace Turtle
     {
         public static (object, IntPtr) Create(Type[] types, VM vm, object _this, MethodDefinition method)
         {
-            var dType = typeof(CapturedDelegate<>).MakeGenericType(types);
+            Type dType = null;
+            IntPtr ptr;
+
+            if (method.ReturnType.FullName == typeof(void).FullName)
+            {
+                dType = typeof(CapturedDelegateAction<>).MakeGenericType(types);
+                ptr = GetMethodPtrAction(types);
+            }
+            else
+            {
+                dType = typeof(CapturedDelegateFunc<>).MakeGenericType(types);
+                ptr = GetMethodPtrFunc(types);
+            }
+
             var del = Activator.CreateInstance(dType, new object[] { vm, _this, method });
-            return (del, GetMethodPtr(types));
+            return (del, ptr);
         }
-        public static IntPtr GetMethodPtr(Type[] types)
+        public static IntPtr GetMethodPtrFunc(Type[] types)
         {
-            return typeof(CapturedDelegate<>)
+            return typeof(CapturedDelegateFunc<>)
                 .MakeGenericType(types)
-                .GetMethod(nameof(CapturedDelegate<int>.Invoke))
+                .GetMethod(nameof(CapturedDelegateFunc<int>.Invoke))
+                .MethodHandle.GetFunctionPointer();
+        }
+        public static IntPtr GetMethodPtrAction(Type[] types)
+        {
+            return typeof(CapturedDelegateAction<>)
+                .MakeGenericType(types)
+                .GetMethod(nameof(CapturedDelegateAction<int>.Invoke))
                 .MethodHandle.GetFunctionPointer();
         }
     }
@@ -39,9 +59,17 @@ namespace Turtle
             this.method = method;
         }
     }
-    class CapturedDelegate<T1> : CapturedDelegate
+
+    class CapturedDelegateFunc<T1> : CapturedDelegate
     {
-        public CapturedDelegate(VM vm, object _this, MethodDefinition method) :
+        public CapturedDelegateFunc(VM vm, object _this, MethodDefinition method) :
+            base(vm, _this, method)
+        { }
+        public object Invoke() => vm.Run(method, _this, new object[] { });
+    }
+    class CapturedDelegateAction<T1> : CapturedDelegate
+    {
+        public CapturedDelegateAction(VM vm, object _this, MethodDefinition method) :
             base(vm, _this, method) { }
         public object Invoke(T1 a) => vm.Run(method, _this, new object[] { a });
     }

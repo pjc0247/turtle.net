@@ -9,11 +9,6 @@ namespace test
     struct BOO
     {
         public int a;
-
-        public BOO(int a)
-        {
-            this.a = a;
-        }
     }
 
     class Foo
@@ -59,8 +54,11 @@ namespace test
     {
         static void Main(string[] args)
         {
-            var b = new BOO(5);
-            Console.WriteLine(b.a);
+            var a = new Func<int>(() =>
+            {
+                return 10;
+            });
+            Console.WriteLine(a());
 
             return;
         }

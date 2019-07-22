@@ -73,6 +73,8 @@
     <Compile Include="VM\Cecil2Net.cs" />
     <Compile Include="VM\Delegate\CapturedDelegate.cs" />
     <Compile Include="VM\MadMath.cs" />
+    <Compile Include="VM\Shim\CallInterceptor.cs" />
+    <Compile Include="VM\Shim\InitializeArrayShim.cs" />
     <Compile Include="VM\TypeResolver.cs" />
     <Compile Include="VM\VM.cs" />
     <Compile Include="VType\VActivator.cs" />
