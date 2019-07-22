@@ -61,6 +61,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cecil\CecilExt.cs" />
+    <Compile Include="Cecil\RefTypeReference.cs" />
     <Compile Include="FIR\Compiler.cs" />
     <Compile Include="FIR\FInstruction.cs" />
     <Compile Include="Program.cs" />

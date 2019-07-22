@@ -29,6 +29,13 @@ namespace Turtle
         }
         public Type Resolve(TypeReference typeRef)
         {
+            var type = _Resolve(typeRef);
+            if (typeRef.IsByReference)
+                return type.MakeByRefType();
+            return type;
+        }
+        public Type _Resolve(TypeReference typeRef)
+        {
             if (typeRef is GenericInstanceType g &&
                 g.HasGenericArguments)
             {

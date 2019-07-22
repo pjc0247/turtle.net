@@ -28,9 +28,12 @@ namespace Turtle
 
         public override string AssemblyQualifiedName => throw new NotImplementedException();
 
-        public override Type BaseType => typeof(VType);
+        public override Type BaseType => typeof(Type).Assembly.GetTypes().Where(x => x.Name == "RuntimeType").FirstOrDefault();
 
-        public override Type UnderlyingSystemType => this;
+        public override Type UnderlyingSystemType => typeof(Type).Assembly.GetTypes().Where(x => x.Name == "RuntimeType").FirstOrDefault();
+
+        protected override bool IsByRefImpl() => _IsByRef;
+        private bool _IsByRef = false;
 
         private VM vm;
         private TypeDefinition type;
@@ -49,6 +52,11 @@ namespace Turtle
             _FullName = type.FullName;
             _Name = type.Name;
             _Namespace = type.Namespace;
+        }
+        public VType(VM vm, TypeDefinition type, bool isByRef) :
+            this(vm, type)
+        {
+            this._IsByRef = isByRef;
         }
 
         public VConstructorInfo AddCtor(MethodDefinition method)
@@ -194,6 +202,8 @@ namespace Turtle
             throw new NotImplementedException();
         }
 
+        public override Type MakeByRefType() => new VType(vm, type, true);
+
         protected override System.Reflection.TypeAttributes GetAttributeFlagsImpl()
         {
             throw new NotImplementedException();
@@ -220,7 +230,6 @@ namespace Turtle
 
         protected override bool HasElementTypeImpl() => false;
         protected override bool IsArrayImpl() => false;
-        protected override bool IsByRefImpl() => false;
         protected override bool IsCOMObjectImpl() => false;
         protected override bool IsPointerImpl() => false;
         protected override bool IsPrimitiveImpl() => false;

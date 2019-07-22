@@ -48,26 +48,26 @@ namespace test
         {
             Console.WriteLine(typeof(T));
         }
+        public static void Hello<B, C>(T a, B b, C c)
+        {
+            Console.WriteLine(typeof(T));
+        }
     }
 
     class Program
     {
         static void Main(string[] args)
         {
-            var a = new Func<int>(() =>
-            {
-                return 10;
-            });
-            Console.WriteLine(a());
+            Foo();
 
             return;
         }
 
-        static void Foo()
+        static async void Foo()
         {
-            object o = new Program();
-
-            Console.WriteLine(o);
+            Console.WriteLine(1234);
+            await Task.Delay(1000);
+            Console.WriteLine(1234);
         }
     }
 }

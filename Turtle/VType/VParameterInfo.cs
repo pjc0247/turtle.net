@@ -23,7 +23,10 @@ namespace Turtle
             this.vm = vm;
             this.parameter = parameter;
 
-            _ParameterType = vm.typeResolver.Resolve(parameter.ParameterType);
+            if (parameter.ParameterType.IsGenericParameter)
+                _ParameterType = null;
+            else
+                _ParameterType = vm.typeResolver.Resolve(parameter.ParameterType);
         }
     }
 }

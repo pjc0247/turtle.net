@@ -25,6 +25,8 @@ namespace Turtle
         private int bp;
 
         private TypeReference[] genericBounds;
+        private TypeReference[] typeGenericBounds;
+        private TypeReference[] methodGenericBounds;
 
         private object s1 {
             get => stack[sp - 1];
@@ -463,11 +465,20 @@ namespace Turtle
             var methodRef = (MethodReference)op.Operand;
             var methodDef = methodRef.Resolve();
 
+            if (methodRef is GenericInstanceMethod gMethod)
+            {
+                methodGenericBounds = new TypeReference[gMethod.GenericArguments.Count];
+                for (int i = 0; i < gMethod.GenericArguments.Count; i++)
+                    methodGenericBounds[i] = gMethod.GenericArguments[i];
+            }
             if (methodRef.DeclaringType is GenericInstanceType g)
             {
+                // Fixme
                 genericBounds = new TypeReference[g.GenericArguments.Count];
                 for (int i = 0; i < g.GenericArguments.Count; i++)
+                {
                     genericBounds[i] = g.GenericArguments[i];
+                }
             }
 
             Console.WriteLine("CALL " + methodDef.Name + " / " + sp);
@@ -476,7 +487,7 @@ namespace Turtle
             var type = typeResolver.Resolve(methodRef.DeclaringType);
             var argTypes = methodRef.Parameters
                 .Select(x => x.ParameterType)
-                .Select(x => x.Name.StartsWith("!") ? genericBounds[int.Parse(x.Name.Substring(1))] : x)
+                .Select(x => ResolveGenericParamter(x))
                 .ToArray()
                 .ToTypes(typeResolver);
 
@@ -489,8 +500,6 @@ namespace Turtle
             }
             else
                 method = type.GetMethod(methodDef.Name, argTypes);
-
-            
 
             if (method.ContainsGenericParameters)
             {
@@ -520,6 +529,20 @@ namespace Turtle
                 Pop(args.Length + 1);
             }
         }
+        private TypeReference ResolveGenericParamter(TypeReference typeRef)
+        {
+            TypeReference _ref = typeRef;
+            if (typeRef.Name.StartsWith("!!"))
+                _ref = methodGenericBounds[int.Parse(typeRef.Name.Substring(2, 1))];
+            else if (typeRef.Name.StartsWith("!"))
+                _ref = methodGenericBounds[int.Parse(typeRef.Name.Substring(1, 1))];
+
+            if (typeRef.Name.EndsWith("&"))
+                _ref = _ref.ToRefType();
+
+            return _ref;
+        }
+
         private void RunCallvirt(Instruction op)
         {
             var methodRef = (MethodReference)op.Operand;
@@ -609,7 +632,13 @@ namespace Turtle
                 var typeRef = vars[i].VariableType;
                 var isStruct = typeRef.IsValueType && !typeRef.IsPrimitive;
                 if (isStruct)
-                    locals[i] = Allocobj((VType)typeResolver.Resolve(typeRef));
+                {
+                    var type = typeResolver.Resolve(typeRef);
+                    if (type is VType vType)
+                        locals[i] = Allocobj(vType);
+                    else
+                        locals[i] = Activator.CreateInstance(type);
+                }
             }
         }
     }
