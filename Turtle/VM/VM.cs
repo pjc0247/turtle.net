@@ -499,18 +499,19 @@ namespace Turtle
                     return;
             }
             else
-                method = type.GetMethod(methodDef.Name, argTypes);
+                method = type.GetMethodExt(methodDef.Name, argTypes);
 
+            MethodBase methodToCall = method;
             if (method.ContainsGenericParameters)
             {
                 var methodInfo = (MethodInfo)method;
-                //methodInfo.MakeGenericMethod(meth)
+                methodToCall = methodInfo.MakeGenericMethod(methodGenericBounds.ToTypes(typeResolver));
             }
 
             if (methodDef.IsStatic)
             {
                 var args = GetStack(method.GetParameters().Length);
-                var ret = method.Invoke(null, args);
+                var ret = methodToCall.Invoke(null, args);
                 Pop(args.Length);
 
                 if (((MethodInfo)method).ReturnType.FullName != typeof(void).FullName)
@@ -520,7 +521,7 @@ namespace Turtle
             {
                 var args = GetStack(method.GetParameters().Length);
                 var _this = stack[sp - method.GetParameters().Length - 1];
-                var ret = method.Invoke(_this, args);
+                var ret = methodToCall.Invoke(_this, args);
 
                 if (method is MethodInfo methodInfo &&
                     methodInfo.ReturnType.FullName != typeof(void).FullName)

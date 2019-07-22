@@ -16,6 +16,7 @@ namespace Turtle
             set => typeRef.DeclaringType = value;
         }
         public override bool IsByReference => true;
+        public override TypeReference GetElementType() => typeRef;
 
         private TypeReference typeRef;
 

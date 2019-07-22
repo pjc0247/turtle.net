@@ -14,9 +14,7 @@ namespace Turtle
     public class VType : Type
     {
         public override Guid GUID => throw new NotImplementedException();
-
         public override Module Module => throw new NotImplementedException();
-
         public override Assembly Assembly => throw new NotImplementedException();
 
         public override string FullName => _FullName;
@@ -29,7 +27,6 @@ namespace Turtle
         public override string AssemblyQualifiedName => throw new NotImplementedException();
 
         public override Type BaseType => typeof(Type).Assembly.GetTypes().Where(x => x.Name == "RuntimeType").FirstOrDefault();
-
         public override Type UnderlyingSystemType => typeof(Type).Assembly.GetTypes().Where(x => x.Name == "RuntimeType").FirstOrDefault();
 
         protected override bool IsByRefImpl() => _IsByRef;
@@ -135,7 +132,7 @@ namespace Turtle
 
         public override Type GetElementType()
         {
-            throw new NotImplementedException();
+            return this;
         }
 
         public override EventInfo GetEvent(string name, BindingFlags bindingAttr)
@@ -202,7 +199,7 @@ namespace Turtle
             throw new NotImplementedException();
         }
 
-        public override Type MakeByRefType() => new VType(vm, type, true);
+        public override Type MakeByRefType() => new VType(vm, type, isByRef: true);
 
         protected override System.Reflection.TypeAttributes GetAttributeFlagsImpl()
         {

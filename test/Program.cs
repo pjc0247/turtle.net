@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reflection;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace test
 {
@@ -54,11 +56,27 @@ namespace test
         }
     }
 
+    class Boo : System.Runtime.CompilerServices.IAsyncStateMachine
+    {
+        public void MoveNext()
+        {
+        }
+        public void SetStateMachine(IAsyncStateMachine stateMachine)
+        {
+        }
+    }
+
     class Program
     {
         static void Main(string[] args)
         {
-            Foo();
+            var v = typeof(System.Runtime.CompilerServices.AsyncVoidMethodBuilder)
+                .GetMethods().Where(x => x.Name == "Start")
+                .FirstOrDefault()
+                .MakeGenericMethod(new Type[] { typeof(Program) });
+
+            Console.WriteLine(v.GetType()); 
+            //Foo();
 
             return;
         }

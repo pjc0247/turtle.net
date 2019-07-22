@@ -70,6 +70,7 @@
     <Compile Include="Storage\IStorage.cs" />
     <Compile Include="Storage\MemStorage.cs" />
     <Compile Include="TurtleRunner.cs" />
+    <Compile Include="Util\ReflectionExt.cs" />
     <Compile Include="VM\AssemblyResolver.cs" />
     <Compile Include="VM\Callframe.cs" />
     <Compile Include="VM\Cecil2Net.cs" />

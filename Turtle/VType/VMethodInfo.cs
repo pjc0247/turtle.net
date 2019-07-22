@@ -74,6 +74,11 @@ namespace Turtle
                 return vm.Run(method, obj, parameters);
         }
 
+        public override MethodInfo MakeGenericMethod(params Type[] typeArguments)
+        {
+            return base.MakeGenericMethod(typeArguments);
+        }
+
         public override bool IsDefined(Type attributeType, bool inherit)
         {
             throw new NotImplementedException();
