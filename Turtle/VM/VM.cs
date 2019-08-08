@@ -16,6 +16,9 @@ namespace Turtle
         internal Assembly assembly;
         private string basepath;
 
+        private int gasLimit;
+        private int gasUsed;
+
         private OpCode[] ops;
         private Instruction cur;
 
@@ -130,6 +133,11 @@ namespace Turtle
         private void Run(Instruction op)
         {
             Console.WriteLine(method.FullName + " / " +  op.OpCode + " / " + sp);
+
+            var fee = GasTable.GetGasFee(op.OpCode.Code);
+            gasUsed += fee;
+            if (gasLimit <= gasUsed)
+                throw new InvalidOperationException("Gas limit exceed");
 
             switch (op.OpCode.Code)
             {

@@ -61,6 +61,8 @@ namespace Turtle
                 type = typeof(int).Assembly.GetType(typeRef.FullName);
             if (type == null)
                 type = typeof(System.Linq.Enumerable).Assembly.GetType(typeRef.FullName);
+            if (type == null)
+                type = typeof(System.Net.Sockets.Socket).Assembly.GetType(typeRef.FullName);
 
             if (type == null)
                 throw new InvalidOperationException("Type not resolved");

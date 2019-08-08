@@ -5,6 +5,8 @@ using System.Text;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using System.Net;
+using System.Net.Sockets;
 
 namespace test
 {
@@ -70,6 +72,17 @@ namespace test
     {
         static void Main(string[] args)
         {
+            string localIP;
+            using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
+            {
+                socket.Connect("8.8.8.8", 65530);
+                IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
+                localIP = endPoint.Address.ToString();
+                Console.WriteLine(localIP);
+                return;
+            }
+
+
             var v = typeof(System.Runtime.CompilerServices.AsyncVoidMethodBuilder)
                 .GetMethods().Where(x => x.Name == "Start")
                 .FirstOrDefault()
