@@ -42,3 +42,8 @@ Otherwise, [MemStorage](https://github.com/pjc0247/turtle.net/blob/master/Turtle
 Running Tests
 ----
 __turtle.net__ has its own test framework. Please refer to `unittest.runner` project.
+
+FIR Compliation (Concept)
+----
+CIL is not aimed to achieve fast execution itself since they already have good JIT compiler to make it fast. However, the main purpose of this repository is getting rid of the JIT and machine-specific assemblies.<br>
+~~~~~
