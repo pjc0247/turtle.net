@@ -46,4 +46,5 @@ __turtle.net__ has its own test framework. Please refer to `unittest.runner` pro
 FIR Compliation (Concept)
 ----
 CIL is not aimed to achieve fast execution itself since they already have good JIT compiler to make it fast. However, the main purpose of this repository is getting rid of the JIT and machine-specific assemblies.<br>
-~~~~~
+So, we need to invent another instruction system which is performance-aware and having well-aligned structure.<br>
+blahblah
