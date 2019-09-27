@@ -67,6 +67,7 @@
     <Compile Include="FIR\FInstruction.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sandbox\GasTable.cs" />
     <Compile Include="Storage\IStorage.cs" />
     <Compile Include="Storage\MemStorage.cs" />
     <Compile Include="TurtleRunner.cs" />

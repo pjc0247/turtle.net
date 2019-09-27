@@ -26,8 +26,17 @@ namespace Turtle
 
                 return obj;
             }
-            else
+            else {
+                for (int i = 0; i < ctor.Parameters.Count; i++){
+                    var paramTypeDef = ctor.Parameters[i].ParameterType.Resolve();
+                    if (paramTypeDef.IsEnum)
+                    {
+                        var paramType = vm.typeResolver.Resolve(paramTypeDef);
+                        args[i] = Enum.ToObject(paramType, args[i]);
+                    }
+                }
                 return Activator.CreateInstance(type, args);
+            }
         }
         public static object CreateInstance(VM vm, Type type, object[] args)
         {

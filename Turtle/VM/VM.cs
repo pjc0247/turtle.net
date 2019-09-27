@@ -16,7 +16,7 @@ namespace Turtle
         internal Assembly assembly;
         private string basepath;
 
-        private int gasLimit;
+        private int gasLimit = int.MaxValue;
         private int gasUsed;
 
         private OpCode[] ops;
