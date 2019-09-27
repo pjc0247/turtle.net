@@ -190,6 +190,8 @@ namespace Turtle
                 case Code.Newarr: RunNewarr(op); break;
                 case Code.Initobj: RunInitobj(op); break;
 
+                case Code.Isinst: RunIsinst(op); break;
+
                 case Code.Dup: Push(s1); break;
                 case Code.Add: RunAdd(op); break;
                 case Code.Sub: RunSub(op); break;
@@ -372,6 +374,18 @@ namespace Turtle
 
             locals[addr] = obj;
             */
+        }
+
+        private void RunIsinst(Instruction op)
+        {
+            var typeRef = (TypeReference)op.Operand;
+            var type = typeResolver.Resolve(typeRef);
+            var s1 = Pop();
+
+            if (s1.GetType() == type)
+                Push(s1);
+            else
+                Push(null);
         }
 
         private void RunAdd(Instruction op)
