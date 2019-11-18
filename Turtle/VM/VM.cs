@@ -548,11 +548,11 @@ namespace Turtle
                 var _this = stack[sp - method.GetParameters().Length - 1];
                 var ret = methodToCall.Invoke(_this, args);
 
+                Pop(args.Length + 1);
+
                 if (method is MethodInfo methodInfo &&
                     methodInfo.ReturnType.FullName != typeof(void).FullName)
                     Push(ret);
-
-                Pop(args.Length + 1);
             }
         }
         private TypeReference ResolveGenericParamter(TypeReference typeRef)
