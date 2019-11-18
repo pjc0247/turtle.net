@@ -23,6 +23,13 @@ vm.Run(new Instruction[]
 
 Getting Started
 ----
+```cs
+var vm = new VM();
+
+// Needs preparation before run
+vm.Build(program);
+vm.Run(program.Assembly.EntryPoint, new object[] { args });
+```
 
 Storage Engine
 ----
