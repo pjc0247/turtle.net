@@ -226,6 +226,9 @@ namespace Turtle
                 case Code.Throw: RunThrow(op); break;
                 case Code.Ret: RunRet(op); break;
 
+                case Code.Leave: RunLeave(op); break;
+                case Code.Leave_S: RunLeave(op); break;
+
                 default:
                     Console.WriteLine("Unknown opcode: " + op.OpCode.Code);
                     break;
@@ -608,6 +611,11 @@ namespace Turtle
 
             if (hasReturn)
                 Push(ret);
+        }
+
+        private void RunLeave(Instruction op)
+        {
+            cur = (Instruction)op.Operand;
         }
 
         private object[] GetStack(int n)
