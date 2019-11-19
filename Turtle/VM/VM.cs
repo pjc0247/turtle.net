@@ -262,6 +262,8 @@ namespace Turtle
                 //var type = typeResolver.Resolve(fd.DeclaringType);
                 Push(type.GetField(fd.Name, fd.GetBindingFlags()).FieldHandle);
             }
+            else
+                Push(op.Operand.GetType().TypeHandle);
         }
         private void RunLdlen(Instruction op)
         {
