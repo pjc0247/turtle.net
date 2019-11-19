@@ -192,6 +192,7 @@ namespace Turtle
 
                 case Code.Isinst: RunIsinst(op); break;
 
+                case Code.Pop: Pop(); break;
                 case Code.Dup: Push(s1); break;
                 case Code.Add: RunAdd(op); break;
                 case Code.Sub: RunSub(op); break;
