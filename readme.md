@@ -33,6 +33,7 @@ vm.Run(program.Assembly.EntryPoint, new object[] { args });
 
 Storage Engine
 ----
+All static variables will be stored in `Storage Engine`.<Br>
 You can implement your own Storage Engine for certain needs. (Blockchain would be a good example)
 
 ```cs
